@@ -1,5 +1,6 @@
 class Opos::Response
-  require_relative 'response/response_errors'
+  require_relative 'response/messages_validator'
+  require_relative 'response/status_validator'
 
   STATUSES = %i(error ok).freeze; private_constant :STATUSES
 
@@ -10,9 +11,8 @@ class Opos::Response
     @status = status
     @value = value
 
-    validate_messages
-    validate_status
-    validate_value
+    messages_validator.validate
+    status_validator.validate
 
     normalize_status
   end
@@ -40,28 +40,16 @@ class Opos::Response
 
   private
 
+  def messages_validator
+    Opos::Response::MessagesValidator.new(messages: messages)
+  end
+
   def normalize_status
     @status = @status.to_sym
   end
 
-  def validate_value
-    true
-  end
-
-  def validate_status
-    error = Opos::Response::InvalidStatusError.new(status, STATUSES)
-    raise error unless [String, Symbol].include?(status.class)
-    raise error unless STATUSES.include?(status.to_sym)
-  end
-
-  def validate_messages
-    messages.each(&method(:validate_message))
-  end
-
-  def validate_message(message)
-    error = Opos::Response::InvalidMessageError.new(message)
-    raise error unless message.is_a?(String)
-    raise error if message.size < 1
+  def status_validator
+    Opos::Response::StatusValidator.new(allowed_statuses: STATUSES, status: status)
   end
 
   class << self
