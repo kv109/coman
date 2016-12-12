@@ -20,7 +20,7 @@ RSpec.describe Opos::Response do
         let(:status) { 'wrong status' }
 
         it do
-          error_class   = Opos::Response::InvalidStatusError
+          error_class   = described_class::InvalidStatusError
           error_message = 'Invalid status (status=wrong status), has to be in [error, ok])'
           expect(subject).to raise_error(error_class, error_message)
         end
@@ -69,7 +69,7 @@ RSpec.describe Opos::Response do
       end
 
       context 'with invalid :messages' do
-        let(:error_class) { Opos::Response::InvalidMessageError }
+        let(:error_class) { described_class::InvalidMessageError }
 
         context 'with message=:not_string' do
           let(:args) { { messages: [:not_string], status: :ok } }
@@ -89,6 +89,25 @@ RSpec.describe Opos::Response do
           end
         end
       end
+    end
+  end
+
+  context '.ok' do
+    it 'builds new Response with status=:ok' do
+      expect(described_class).to receive(:new).with({ status: :ok })
+      described_class.ok
+
+      expect(described_class).to receive(:new).with({ messages: [], status: :ok })
+      described_class.ok(messages: [])
+
+      expect(described_class).to receive(:new).with({ status: :ok, value: 'value' })
+      described_class.ok(value: 'value')
+
+      expect(described_class).to receive(:new).with({ status: :ok, value: nil })
+      described_class.ok(value: nil)
+
+      expect(described_class).to receive(:new).with({ messages: [], status: :ok, value: 'value' })
+      described_class.ok(messages: [], value: 'value')
     end
   end
 end

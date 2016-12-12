@@ -63,4 +63,14 @@ class Opos::Response
     raise error unless message.is_a?(String)
     raise error if message.size < 1
   end
+
+  class << self
+    def ok(opts = nil)
+      opts ||= {}
+      filtered_opts = {}
+      filtered_opts[:messages] = opts[:messages] if opts.has_key?(:messages)
+      filtered_opts[:value]    = opts[:value] if opts.has_key?(:value)
+      new(filtered_opts.merge(status: :ok))
+    end
+  end
 end
