@@ -1,4 +1,4 @@
-class Opos::Response::MessagesValidator
+class Coman::Response::MessagesValidator
   require_relative 'response_errors'
 
   def initialize(messages:)
@@ -12,7 +12,7 @@ class Opos::Response::MessagesValidator
   private
 
   def validate_message(message)
-    error = Opos::Response::InvalidMessageError.new(message: message)
+    error = Coman::Response::InvalidMessageError.new(message: message)
     raise error unless message.is_a?(String)
     raise error if message.size < 1
   end

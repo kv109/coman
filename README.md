@@ -1,4 +1,4 @@
-# Opos
+# Coman
 
 Simple DSL to support Command pattern
 
@@ -7,7 +7,7 @@ Simple DSL to support Command pattern
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'opos'
+gem 'coman'
 ```
 
 And then execute:
@@ -16,7 +16,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install opos
+    $ gem install coman
 
 ## Usage
 
@@ -24,9 +24,9 @@ Or install it yourself as:
 class CreateUserCommand < Struct.new(:user)
   def execute
     if user.save
-      Opos::Response.ok(value: user)
+      Coman::Response.ok(value: user)
     else
-      Opos::Response.error(messages: user.errors.full_messages)
+      Coman::Response.error(messages: user.errors.full_messages)
     end
   end
 end

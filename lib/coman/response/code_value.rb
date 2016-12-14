@@ -1,4 +1,4 @@
-class Opos::Response::CodeValue
+class Coman::Response::CodeValue
   require_relative 'code_validator'
 
   CODES_MAP = {
@@ -65,7 +65,7 @@ class Opos::Response::CodeValue
   end
 
   def validate
-    Opos::Response::CodeValidator.new(allowed_codes: self.class.allowed_codes, code: code).validate
+    Coman::Response::CodeValidator.new(allowed_codes: self.class.allowed_codes, code: code).validate
   end
 
   private

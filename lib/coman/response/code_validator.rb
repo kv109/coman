@@ -1,4 +1,4 @@
-class Opos::Response::CodeValidator
+class Coman::Response::CodeValidator
   require_relative 'response_errors'
 
   def initialize(allowed_codes:, code:)
@@ -8,7 +8,7 @@ class Opos::Response::CodeValidator
 
   def validate
     unless allowed_codes.include?(code)
-      raise Opos::Response::InvalidCodeError.new(allowed_codes: allowed_codes, code: code)
+      raise Coman::Response::InvalidCodeError.new(allowed_codes: allowed_codes, code: code)
     end
   end
 

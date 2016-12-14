@@ -1,11 +1,11 @@
-require_relative '../lib/opos'
+require_relative '../lib/coman'
 
 class CreateUserCommand < Struct.new(:user)
   def execute
     if user.save
-      Opos::Response.ok(value: user)
+      Coman::Response.ok(value: user)
     else
-      Opos::Response.error(messages: user.errors.full_messages)
+      Coman::Response.error(messages: user.errors.full_messages)
     end
   end
 end

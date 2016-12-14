@@ -1,4 +1,4 @@
-class Opos::Response
+class Coman::Response
   require_relative 'response/code_value'
   require_relative 'response/code_and_status_validator'
   require_relative 'response/messages_validator'
@@ -49,12 +49,12 @@ class Opos::Response
       @code = 200 if status_value.ok?
       @code = 400 if status_value.error?
     end
-    @code_value = Opos::Response::CodeValue.new(code: @code, status_value: status_value)
+    @code_value = Coman::Response::CodeValue.new(code: @code, status_value: status_value)
   end
 
 
   def status_value
-    @status_value ||= Opos::Response::StatusValue.new(status: @status)
+    @status_value ||= Coman::Response::StatusValue.new(status: @status)
   end
 
   def validate
@@ -62,8 +62,8 @@ class Opos::Response
     status_value
     code_value
     [
-      Opos::Response::CodeAndStatusValidator.new(code_value: code_value, status_value: status_value),
-      Opos::Response::MessagesValidator.new(messages: messages)
+      Coman::Response::CodeAndStatusValidator.new(code_value: code_value, status_value: status_value),
+      Coman::Response::MessagesValidator.new(messages: messages)
     ].each(&:validate)
   end
 

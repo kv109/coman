@@ -1,17 +1,17 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'opos/version'
+require 'coman/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'opos'
-  spec.version       = Opos::VERSION
+  spec.name          = 'coman'
+  spec.version       = Coman::VERSION
   spec.authors       = ['Kacper Walanus']
   spec.email         = ['kacper@walanus.com']
 
   spec.summary       = %q{Simple DSL for operations}
   spec.description   = %q{Simple DSL for operations}
-  spec.homepage      = 'https://github.com/kv109/opos'
+  spec.homepage      = 'https://github.com/kv109/coman'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'

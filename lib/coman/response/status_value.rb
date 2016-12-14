@@ -1,4 +1,4 @@
-class Opos::Response::StatusValue
+class Coman::Response::StatusValue
   require_relative 'status_validator'
 
   ALLOWED_STATUSES = [:error, :ok]; private_constant :ALLOWED_STATUSES
@@ -22,7 +22,7 @@ class Opos::Response::StatusValue
   end
 
   def validate
-    Opos::Response::StatusValidator.new(allowed_statuses: ALLOWED_STATUSES, status: status).validate
+    Coman::Response::StatusValidator.new(allowed_statuses: ALLOWED_STATUSES, status: status).validate
   end
 
   private

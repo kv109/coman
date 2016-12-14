@@ -1,4 +1,4 @@
-class Opos::Response::CodeAndStatusValidator
+class Coman::Response::CodeAndStatusValidator
   require_relative 'response_errors'
 
   def initialize(code_value:, status_value:)
@@ -8,7 +8,7 @@ class Opos::Response::CodeAndStatusValidator
 
   def validate
     if code_and_status_mismatch?
-      raise Opos::Response::StatusAndCodeMismatchError.new(code: code_value.get, status: status_value.get)
+      raise Coman::Response::StatusAndCodeMismatchError.new(code: code_value.get, status: status_value.get)
     end
   end
 

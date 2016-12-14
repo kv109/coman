@@ -1,22 +1,22 @@
-class Opos::Response::Error < StandardError
+class Coman::Response::Error < StandardError
   def inclusion_text(array)
     "has to be in [#{array.join(', ')}]"
   end
 end
 
-class Opos::Response::InvalidCodeError < Opos::Response::Error
+class Coman::Response::InvalidCodeError < Coman::Response::Error
   def initialize(allowed_codes:, code:)
     super("Invalid code (code=#{code}), #{inclusion_text(allowed_codes)}")
   end
 end
 
-class Opos::Response::StatusAndCodeMismatchError < Opos::Response::Error
+class Coman::Response::StatusAndCodeMismatchError < Coman::Response::Error
   def initialize(code:, status:)
     super("Status (status=#{status}) and code (code=#{code}) don't match")
   end
 end
 
-class Opos::Response::InvalidMessageError < Opos::Response::Error
+class Coman::Response::InvalidMessageError < Coman::Response::Error
   def initialize(message:)
     if message == ''
       message = '[empty string]'
@@ -27,7 +27,7 @@ class Opos::Response::InvalidMessageError < Opos::Response::Error
   end
 end
 
-class Opos::Response::InvalidStatusError < Opos::Response::Error
+class Coman::Response::InvalidStatusError < Coman::Response::Error
   def initialize(allowed_statuses:, status:)
     super("Invalid status (status=#{status}), #{inclusion_text(allowed_statuses)}")
   end

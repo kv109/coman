@@ -1,6 +1,6 @@
-require_relative '../../lib/opos/response'
+require_relative '../../lib/coman/response'
 
-RSpec.describe Opos::Response do
+RSpec.describe Coman::Response do
   describe '#initialize' do
     context 'with no args' do
       subject { -> { described_class.new } }
