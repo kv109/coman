@@ -19,12 +19,12 @@ class Opos::Response
   end
 
   def error(&block)
-    block.call(value, messages) if block_given? && error?
+    block.call(value, messages) if block_given? && status_value.error?
     self
   end
 
   def ok(&block)
-    block.call(value, messages) if block_given? && ok?
+    block.call(value, messages) if block_given? && status_value.ok?
     self
   end
 
@@ -45,19 +45,15 @@ class Opos::Response
   def code_value
     return @code_value if @code_value
     if @code.nil?
-      @code = 200 if ok?
-      @code = 400 if error?
+      @code = 200 if status_value.ok?
+      @code = 400 if status_value.error?
     end
-    @code_value = Opos::Response::CodeValue.new(code: @code)
+    @code_value = Opos::Response::CodeValue.new(code: @code, status_value: status_value)
   end
-
-  def error?; status == :error end
 
   def messages_validator
     Opos::Response::MessagesValidator.new(messages: messages)
   end
-
-  def ok?; status == :ok end
 
   def status_value
     @status_value ||= Opos::Response::StatusValue.new(status: @status)
@@ -67,8 +63,8 @@ class Opos::Response
     messages_validator.validate
 
     # Values are validated on initialize
-    code_value
     status_value
+    code_value
   end
 
   class << self

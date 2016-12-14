@@ -10,6 +10,12 @@ class Opos::Response::InvalidCodeError < Opos::Response::Error
   end
 end
 
+class Opos::Response::StatusAndCodeMismatchError < Opos::Response::Error
+  def initialize(code:, status:)
+    super("Status (status=#{status}) and code (code=#{code}) don't match")
+  end
+end
+
 class Opos::Response::InvalidMessageError < Opos::Response::Error
   def initialize(message:)
     if message == ''

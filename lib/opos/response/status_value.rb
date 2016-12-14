@@ -9,8 +9,16 @@ class Opos::Response::StatusValue
     validate
   end
 
+  def error?
+    get == :error
+  end
+
   def get
     status.to_sym
+  end
+
+  def ok?
+    get == :ok
   end
 
   def validate
