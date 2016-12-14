@@ -153,20 +153,126 @@ RSpec.describe Coman::Response do
 
   describe '#ok' do
     context 'with block' do
-      it 'yields block if status=:ok' do
-        args_to_returned_values = {
-          { status: :ok } => [nil, []],
-          { status: :ok, value: 'value' } => ['value', []],
-          { messages: ['foobar'], status: :ok } => [nil, ['foobar']],
-          { messages: ['foobar'], status: :ok, value: 'value' } => ['value', ['foobar']],
-        }
-        args_to_returned_values.each do |args, returned_values|
-          expect{ |block| described_class.new(args).ok(&block)}.to yield_with_args(*returned_values)
+      context 'with no code arg' do
+        it 'yields block if status=:ok' do
+          args_to_returned_values = {
+            { status: :ok } => [nil, []],
+            { status: :ok, value: 'value' } => ['value', []],
+            { messages: ['foobar'], status: :ok } => [nil, ['foobar']],
+            { messages: ['foobar'], status: :ok, value: 'value' } => ['value', ['foobar']],
+          }
+          args_to_returned_values.each do |args, returned_values|
+            expect{ |block| described_class.new(args).ok(&block)}.to yield_with_args(*returned_values)
+          end
+        end
+
+        it 'yields for any success code' do
+          args_to_returned_values = {
+            { code: 200, status: :ok } => [nil, []],
+            { code: 201, status: :ok } => [nil, []],
+            { code: :ok, status: :ok } => [nil, []],
+            { code: :created, status: :ok } => [nil, []],
+          }
+          args_to_returned_values.each do |args, returned_values|
+            expect{ |block| described_class.new(args).ok(&block)}.to yield_with_args(*returned_values)
+          end
+        end
+
+        it 'does not yield block if status=:error' do
+          expect{ |block| described_class.new(status: :error).ok(&block)}.to_not yield_with_args
         end
       end
 
-      it 'does not yield block if status=:error' do
-        expect{ |block| described_class.new(status: :error).ok(&block)}.to_not yield_with_args
+      context 'with code arg' do
+        it 'yields only if response code matches given code' do
+          expect do |block|
+            described_class.new(code: 201, status: :ok).ok(201, &block)
+          end.to yield_with_args(nil, [])
+
+          expect do |block|
+            described_class.new(code: 201, status: :ok).ok(:created, &block)
+          end.to yield_with_args(nil, [])
+
+          expect do |block|
+            described_class.new(code: :created, status: :ok).ok(201, &block)
+          end.to yield_with_args(nil, [])
+
+          expect do |block|
+            described_class.new(code: :created, status: :ok).ok(:created, &block)
+          end.to yield_with_args(nil, [])
+
+          expect do |block|
+            described_class.new(code: 200, status: :ok).ok(201, &block)
+          end.to_not yield_with_args
+        end
+      end
+    end
+
+
+    context 'with no block' do
+      let(:instance) { described_class.new(status: :ok) }
+
+      it do
+        expect{ instance.ok }.to_not raise_error
+        expect( instance.ok ).to eql instance
+      end
+    end
+  end
+
+  describe '#error' do
+    context 'with block' do
+      context 'with no code arg' do
+        it 'yields block if status=:error' do
+          args_to_returned_values = {
+            { status: :error } => [nil, []],
+            { status: :error, value: 'value' } => ['value', []],
+            { messages: ['foobar'], status: :error } => [nil, ['foobar']],
+            { messages: ['foobar'], status: :error, value: 'value' } => ['value', ['foobar']],
+          }
+          args_to_returned_values.each do |args, returned_values|
+            expect{ |block| described_class.new(args).error(&block)}.to yield_with_args(*returned_values)
+          end
+        end
+
+        it 'yields for any error code' do
+          args_to_returned_values = {
+            { code: 400, status: :error } => [nil, []],
+            { code: 401, status: :error } => [nil, []],
+            { code: :bad_request, status: :error } => [nil, []],
+            { code: :unauthorized, status: :error } => [nil, []],
+          }
+          args_to_returned_values.each do |args, returned_values|
+            expect{ |block| described_class.new(args).error(&block)}.to yield_with_args(*returned_values)
+          end
+        end
+
+        it 'does not yield block if status=:ok' do
+          expect{ |block| described_class.new(status: :ok).error(&block)}.to_not yield_with_args
+        end
+      end
+
+      context 'with code arg' do
+        it 'yields only if response code matches given code' do
+          expect do |block|
+            described_class.new(code: 401, status: :error).error(401, &block)
+          end.to yield_with_args(nil, [])
+
+          expect do |block|
+            described_class.new(code: 401, status: :error).error(:unauthorized, &block)
+          end.to yield_with_args(nil, [])
+
+          expect do |block|
+            described_class.new(code: :unauthorized, status: :error).error(401, &block)
+          end.to yield_with_args(nil, [])
+
+          expect do |block|
+            described_class.new(code: :unauthorized, status: :error).error(:unauthorized, &block)
+          end.to yield_with_args(nil, [])
+
+          expect do |block|
+            described_class.new(code: 400, status: :error).error(401, &block)
+          end.to_not yield_with_args
+        end
       end
     end
 

@@ -19,13 +19,19 @@ class Coman::Response
     code_value.get
   end
 
-  def error(&block)
-    block.call(value, messages) if block_given? && status_value.error?
+  def error(code = nil, &block)
+    return self unless block_given?
+    return self unless status_value.error?
+    return self if code && Coman::Response::CodeValue.new(code: code) != code_value
+    block.call(value, messages)
     self
   end
 
-  def ok(&block)
-    block.call(value, messages) if block_given? && status_value.ok?
+  def ok(code = nil, &block)
+    return self unless block_given?
+    return self unless status_value.ok?
+    return self if code && Coman::Response::CodeValue.new(code: code) != code_value
+    block.call(value, messages)
     self
   end
 
@@ -49,7 +55,7 @@ class Coman::Response
       @code = 200 if status_value.ok?
       @code = 400 if status_value.error?
     end
-    @code_value = Coman::Response::CodeValue.new(code: @code, status_value: status_value)
+    @code_value = Coman::Response::CodeValue.new(code: @code)
   end
 
 

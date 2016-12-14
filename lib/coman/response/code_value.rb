@@ -42,11 +42,14 @@ class Coman::Response::CodeValue
     451 => :unavailable_for_legal_reasons
   }; private_constant :CODES_MAP
 
-  def initialize(code:, status_value:)
+  def initialize(code:)
     @code = code
-    @status_value = status_value
 
     validate
+  end
+
+  def ==(other)
+    get == other.get
   end
 
   def get
@@ -70,7 +73,7 @@ class Coman::Response::CodeValue
 
   private
 
-  attr_reader :code, :status_value
+  attr_reader :code
 
   class << self
     def allowed_codes

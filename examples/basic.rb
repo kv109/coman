@@ -11,6 +11,7 @@ class CreateUserCommand < Struct.new(:user)
 end
 
 class User
+  def id; true end
   def save; true end
 end
 
@@ -22,8 +23,14 @@ class UsersController
       .ok do |user|
         render json: user
       end
-      .error do |messages, value|
-        render json: messages
+      .error(401) do
+        head :unauthorized
+      end
+      .error(422) do |user, messages|
+        render json: { id: user.id, messages: messages }
+      end
+      .error do |user, messages|  # any other error
+        render json: { error: messages.join(', ') }, status: :bad_request
       end
   end
 
