@@ -2,22 +2,6 @@
 
 Simple DSL to support Command pattern
 
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'coman'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install coman
-
 ## Usage
 
 ```ruby
@@ -52,6 +36,23 @@ class UsersController
 end
 
 ```
+
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'coman'
+```
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install coman
+
 
 ## License
 
