@@ -1,5 +1,6 @@
 class Opos::Response
   require_relative 'response/code_value'
+  require_relative 'response/code_and_status_validator'
   require_relative 'response/messages_validator'
   require_relative 'response/status_value'
 
@@ -51,20 +52,19 @@ class Opos::Response
     @code_value = Opos::Response::CodeValue.new(code: @code, status_value: status_value)
   end
 
-  def messages_validator
-    Opos::Response::MessagesValidator.new(messages: messages)
-  end
 
   def status_value
     @status_value ||= Opos::Response::StatusValue.new(status: @status)
   end
 
   def validate
-    messages_validator.validate
-
     # Values are validated on initialize
     status_value
     code_value
+    [
+      Opos::Response::CodeAndStatusValidator.new(code_value: code_value, status_value: status_value),
+      Opos::Response::MessagesValidator.new(messages: messages)
+    ].each(&:validate)
   end
 
   class << self

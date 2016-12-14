@@ -50,15 +50,31 @@ class Opos::Response::CodeValue
   end
 
   def get
-    return code if code.is_a?(Fixnum)
-    return CODES_MAP.key(code) if code.is_a?(Symbol)
+    return @get if @get
+    @get = code if code.is_a?(Fixnum)
+    @get = CODES_MAP.key(code) if code.is_a?(Symbol)
+    @get
+  end
+
+  def error?
+    get >= 400 && get < 600
+  end
+
+  def ok?
+    get >= 200 && get < 300
   end
 
   def validate
-    Opos::Response::CodeValidator.new(code: code, codes_map: CODES_MAP, status_value: status_value).validate
+    Opos::Response::CodeValidator.new(allowed_codes: self.class.allowed_codes, code: code).validate
   end
 
   private
 
   attr_reader :code, :status_value
+
+  class << self
+    def allowed_codes
+      CODES_MAP.keys + CODES_MAP.values
+    end
+  end
 end
