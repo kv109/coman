@@ -1,5 +1,4 @@
-require "opos/version"
+require_relative 'opos/version'
 
 module Opos
-  # Your code goes here...
 end

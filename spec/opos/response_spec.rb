@@ -1,27 +1,76 @@
 require_relative '../../lib/opos/response'
 
 RSpec.describe Opos::Response do
-  context '#initialize' do
-    subject { -> { described_class.new(args) } }
-
+  describe '#initialize' do
     context 'with no args' do
       subject { -> { described_class.new } }
       it { expect(subject).to raise_error(ArgumentError) }
     end
 
+    context ':code arg' do
+      context 'with no :code' do
+        context 'with :status => :ok' do
+          subject { described_class.new(status: :ok) }
+
+          it { expect(subject.code).to eql 200 }
+        end
+
+        context 'with :status => :error' do
+          subject { described_class.new(status: :error) }
+
+          it { expect(subject.code).to eql 400 }
+        end
+      end
+
+      context 'with invalid :code' do
+        subject { -> { described_class.new(code: 'wrong code', status: :ok) } }
+
+        it do
+          error_class   = described_class::InvalidCodeError
+          error_message = 'Invalid code (code=wrong code), has to be in [200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 421, 422, 423, 424, 426, 428, 429, 431, 451, ok, created, accepted, non_authoritative_information, no_content, reset_content, partial_content, multi_status, already_reported, im_used, bad_request, unauthorized, payment_required, forbidden, not_found, method_not_allowed, not_acceptable, proxy_authentication_required, request_time_out, conflict, gone, length_required, precondition_failed, payload_too_large, uri_too_long, unsupported_media_type, range_not_satisfiable, expectation_failed, i_m_a_teapot, misdirected_request, unprocessable_entity, locked, failed_dependency, upgrade_required, precondition_required, too_many_requests, request_header_fields_too_large, unavailable_for_legal_reasons]'
+          expect(subject).to raise_error(error_class, error_message)
+        end
+      end
+
+      context 'with valid :code' do
+        it 'returns integer' do
+          [200, :ok].each do |code|
+            instance = described_class.new(code: code, status: :ok)
+            expect(instance.code).to eql 200
+          end
+
+          [400, :bad_request].each do |code|
+            instance = described_class.new(code: code, status: :ok)
+            expect(instance.code).to eql 400
+          end
+        end
+
+        context 'with status not matching code' do
+          context ':status => :ok' do
+            subject { -> { described_class.new(code: 400, status: :ok) } }
+
+            it do
+              error_class   = described_class::InvalidCodeError
+              # error_message = 'Invalid code (code=wrong code), has to be in [200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 421, 422, 423, 424, 426, 428, 429, 431, 451, ok, created, accepted, non_authoritative_information, no_content, reset_content, partial_content, multi_status, already_reported, im_used, bad_request, unauthorized, payment_required, forbidden, not_found, method_not_allowed, not_acceptable, proxy_authentication_required, request_time_out, conflict, gone, length_required, precondition_failed, payload_too_large, uri_too_long, unsupported_media_type, range_not_satisfiable, expectation_failed, i_m_a_teapot, misdirected_request, unprocessable_entity, locked, failed_dependency, upgrade_required, precondition_required, too_many_requests, request_header_fields_too_large, unavailable_for_legal_reasons]'
+              expect(subject).to raise_error(error_class)
+            end
+          end
+        end
+      end
+    end
+
     context ':status arg' do
       context 'with no :status' do
-        let(:args) { { messages: ['message'], value: 'string' } }
+        subject { -> { described_class.new(messages: ['message'], value: 'string') } }
         it { expect(subject).to raise_error(ArgumentError) }
       end
 
       context 'with invalid :status' do
-        let(:args) { { status: status } }
-        let(:status) { 'wrong status' }
+        subject { -> { described_class.new(status: 'wrong status') } }
 
         it do
           error_class   = described_class::InvalidStatusError
-          error_message = 'Invalid status (status=wrong status), has to be in [error, ok])'
+          error_message = 'Invalid status (status=wrong status), has to be in [error, ok]'
           expect(subject).to raise_error(error_class, error_message)
         end
       end
@@ -33,29 +82,29 @@ RSpec.describe Opos::Response do
 
         it { expect{ described_class.new(args) }.to_not raise_error }
 
-        context 'with :status => :ok arg' do
+        context 'with :status => :ok' do
           let(:status) { :ok }
           it { expect(subject).to eql :ok }
         end
 
-        context 'with :status => "ok" arg' do
+        context 'with :status => "ok"' do
           let(:status) { 'ok' }
           it { expect(subject).to eql :ok }
         end
 
-        context 'with :status => :error arg' do
+        context 'with :status => :error' do
           let(:status) { :error }
           it { expect(subject).to eql :error }
         end
 
-        context 'with :status => "error" arg' do
+        context 'with :status => "error"' do
           let(:status) { 'error' }
           it { expect(subject).to eql :error }
         end
       end
     end
 
-    context ':messages' do
+    context ':messages arg' do
       subject { described_class.new(args).messages }
 
       context 'with no :messages' do
@@ -63,7 +112,7 @@ RSpec.describe Opos::Response do
         it { expect(subject).to eq [] }
       end
 
-      context 'with :messages => ["foobar"] arg' do
+      context 'with :messages => ["foobar"]' do
         let(:args) { { messages: ['foobar'], status: :ok } }
         it { expect(subject).to eq ['foobar'] }
       end
@@ -92,7 +141,7 @@ RSpec.describe Opos::Response do
     end
   end
 
-  context '#ok' do
+  describe '#ok' do
     context 'with block' do
       it 'yields block if status=:ok' do
         args_to_returned_values = {
@@ -121,7 +170,7 @@ RSpec.describe Opos::Response do
     end
   end
 
-  context '.ok' do
+  describe '.ok' do
     it 'builds new Response with status=:ok' do
       expect(described_class).to receive(:new).with({ status: :ok })
       described_class.ok

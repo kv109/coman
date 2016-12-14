@@ -1,20 +1,21 @@
 class Opos::Response
+  require_relative 'response/code_value'
   require_relative 'response/messages_validator'
-  require_relative 'response/status_validator'
+  require_relative 'response/status_value'
 
-  STATUSES = %i(error ok).freeze; private_constant :STATUSES
+  attr_reader :messages, :value
 
-  attr_reader :messages, :status, :value
-
-  def initialize(messages: [], status:, value: nil)
+  def initialize(code: nil, messages: [], status:, value: nil)
+    @code     = code
     @messages = messages
-    @status = status
-    @value = value
+    @status   = status
+    @value    = value
 
-    messages_validator.validate
-    status_validator.validate
+    validate
+  end
 
-    normalize_status
+  def code
+    code_value.get
   end
 
   def error(&block)
@@ -27,6 +28,10 @@ class Opos::Response
     self
   end
 
+  def status
+    status_value.get
+  end
+
   def to_s
     [].tap do |string|
       string << "status=#{status}"
@@ -35,21 +40,35 @@ class Opos::Response
     end.join(', ').insert(0, 'RESULT: ')
   end
 
-  def error?; status == :error end
-  def ok?; status == :ok end
-
   private
+
+  def code_value
+    return @code_value if @code_value
+    if @code.nil?
+      @code = 200 if ok?
+      @code = 400 if error?
+    end
+    @code_value = Opos::Response::CodeValue.new(code: @code)
+  end
+
+  def error?; status == :error end
 
   def messages_validator
     Opos::Response::MessagesValidator.new(messages: messages)
   end
 
-  def normalize_status
-    @status = @status.to_sym
+  def ok?; status == :ok end
+
+  def status_value
+    @status_value ||= Opos::Response::StatusValue.new(status: @status)
   end
 
-  def status_validator
-    Opos::Response::StatusValidator.new(allowed_statuses: STATUSES, status: status)
+  def validate
+    messages_validator.validate
+
+    # Values are validated on initialize
+    code_value
+    status_value
   end
 
   class << self
