@@ -92,6 +92,35 @@ RSpec.describe Opos::Response do
     end
   end
 
+  context '#ok' do
+    context 'with block' do
+      it 'yields block if status=:ok' do
+        args_to_returned_values = {
+          { status: :ok } => [nil, []],
+          { status: :ok, value: 'value' } => ['value', []],
+          { messages: ['foobar'], status: :ok } => [nil, ['foobar']],
+          { messages: ['foobar'], status: :ok, value: 'value' } => ['value', ['foobar']],
+        }
+        args_to_returned_values.each do |args, returned_values|
+          expect{ |block| described_class.new(args).ok(&block)}.to yield_with_args(*returned_values)
+        end
+      end
+
+      it 'does not yield block if status=:error' do
+        expect{ |block| described_class.new(status: :error).ok(&block)}.to_not yield_with_args
+      end
+    end
+
+    context 'with no block' do
+      let(:instance) { described_class.new(status: :ok) }
+
+      it do
+        expect{ instance.ok }.to_not raise_error
+        expect( instance.ok ).to eql instance
+      end
+    end
+  end
+
   context '.ok' do
     it 'builds new Response with status=:ok' do
       expect(described_class).to receive(:new).with({ status: :ok })

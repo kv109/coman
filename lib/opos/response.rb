@@ -18,12 +18,12 @@ class Opos::Response
   end
 
   def error(&block)
-    block.call(value, messages) if error?
+    block.call(value, messages) if block_given? && error?
     self
   end
 
   def ok(&block)
-    block.call(value) if ok?
+    block.call(value, messages) if block_given? && ok?
     self
   end
 
