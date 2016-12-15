@@ -4,13 +4,13 @@ class Coman::Response
   require_relative 'response/messages_validator'
   require_relative 'response/status_value'
 
-  attr_reader :messages, :value
+  attr_reader :messages, :result
 
-  def initialize(code: nil, messages: [], status:, value: nil)
+  def initialize(code: nil, messages: [], status:, result: nil)
     @code     = code
     @messages = messages
     @status   = status
-    @value    = value
+    @result   = result
 
     validate
   end
@@ -23,7 +23,7 @@ class Coman::Response
     return self unless block_given?
     return self unless status_value.error?
     return self if code && Coman::Response::CodeValue.new(code: code) != code_value
-    block.call(value, messages)
+    block.call(result, messages)
     self
   end
 
@@ -31,7 +31,7 @@ class Coman::Response
     return self unless block_given?
     return self unless status_value.ok?
     return self if code && Coman::Response::CodeValue.new(code: code) != code_value
-    block.call(value, messages)
+    block.call(result, messages)
     self
   end
 
@@ -43,7 +43,7 @@ class Coman::Response
     [].tap do |string|
       string << "status=#{status}"
       string << "messages=#{messages.join(', ')}" if messages.present?
-      string << "value=#{value}" if value
+      string << "result=#{result}" if result
     end.join(', ').insert(0, 'RESULT: ')
   end
 
@@ -78,7 +78,7 @@ class Coman::Response
       opts ||= {}
       filtered_opts = {}
       filtered_opts[:messages] = opts[:messages] if opts.has_key?(:messages)
-      filtered_opts[:value]    = opts[:value] if opts.has_key?(:value)
+      filtered_opts[:result]    = opts[:result] if opts.has_key?(:result)
       new(filtered_opts.merge(status: :ok))
     end
   end

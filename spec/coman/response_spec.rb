@@ -71,7 +71,7 @@ RSpec.describe Coman::Response do
 
     context ':status arg' do
       context 'with no :status' do
-        subject { -> { described_class.new(messages: ['message'], value: 'string') } }
+        subject { -> { described_class.new(messages: ['message'], result: 'string') } }
         it { expect(subject).to raise_error(ArgumentError) }
       end
 
@@ -157,9 +157,9 @@ RSpec.describe Coman::Response do
         it 'yields block if status=:ok' do
           args_to_returned_values = {
             { status: :ok } => [nil, []],
-            { status: :ok, value: 'value' } => ['value', []],
+            { status: :ok, result: 'result' } => ['result', []],
             { messages: ['foobar'], status: :ok } => [nil, ['foobar']],
-            { messages: ['foobar'], status: :ok, value: 'value' } => ['value', ['foobar']],
+            { messages: ['foobar'], status: :ok, result: 'result' } => ['result', ['foobar']],
           }
           args_to_returned_values.each do |args, returned_values|
             expect{ |block| described_class.new(args).ok(&block)}.to yield_with_args(*returned_values)
@@ -225,9 +225,9 @@ RSpec.describe Coman::Response do
         it 'yields block if status=:error' do
           args_to_returned_values = {
             { status: :error } => [nil, []],
-            { status: :error, value: 'value' } => ['value', []],
+            { status: :error, result: 'result' } => ['result', []],
             { messages: ['foobar'], status: :error } => [nil, ['foobar']],
-            { messages: ['foobar'], status: :error, value: 'value' } => ['value', ['foobar']],
+            { messages: ['foobar'], status: :error, result: 'result' } => ['result', ['foobar']],
           }
           args_to_returned_values.each do |args, returned_values|
             expect{ |block| described_class.new(args).error(&block)}.to yield_with_args(*returned_values)
@@ -294,14 +294,14 @@ RSpec.describe Coman::Response do
       expect(described_class).to receive(:new).with({ messages: [], status: :ok })
       described_class.ok(messages: [])
 
-      expect(described_class).to receive(:new).with({ status: :ok, value: 'value' })
-      described_class.ok(value: 'value')
+      expect(described_class).to receive(:new).with({ status: :ok, result: 'result' })
+      described_class.ok(result: 'result')
 
-      expect(described_class).to receive(:new).with({ status: :ok, value: nil })
-      described_class.ok(value: nil)
+      expect(described_class).to receive(:new).with({ status: :ok, result: nil })
+      described_class.ok(result: nil)
 
-      expect(described_class).to receive(:new).with({ messages: [], status: :ok, value: 'value' })
-      described_class.ok(messages: [], value: 'value')
+      expect(described_class).to receive(:new).with({ messages: [], status: :ok, result: 'result' })
+      described_class.ok(messages: [], result: 'result')
     end
   end
 end

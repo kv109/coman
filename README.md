@@ -8,7 +8,7 @@ Simple DSL to support Command pattern
 class CreateUserCommand < Struct.new(:user)
   def execute
     if user.save
-      Coman::Response.ok(value: user)
+      Coman::Response.ok(result: user)
     else
       Coman::Response.error(messages: user.errors.full_messages)
     end
