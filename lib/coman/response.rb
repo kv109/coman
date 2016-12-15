@@ -20,18 +20,22 @@ class Coman::Response
   end
 
   def error(code = nil, &block)
+    return self if already_called_for?(:error)
     return self unless block_given?
     return self unless status_value.error?
     return self if code && Coman::Response::CodeValue.new(code: code) != code_value
     block.call(result, messages)
+    set_already_called_for(:error)
     self
   end
 
   def ok(code = nil, &block)
+    return self if already_called_for?(:ok)
     return self unless block_given?
     return self unless status_value.ok?
     return self if code && Coman::Response::CodeValue.new(code: code) != code_value
     block.call(result, messages)
+    set_already_called_for(:ok)
     self
   end
 
@@ -49,6 +53,14 @@ class Coman::Response
 
   private
 
+  def already_called_for?(status)
+    already_called_for[status] == true
+  end
+
+  def already_called_for
+    @already_called_for ||= { error: false, ok: false }
+  end
+
   def code_value
     return @code_value if @code_value
     if @code.nil?
@@ -58,6 +70,9 @@ class Coman::Response
     @code_value = Coman::Response::CodeValue.new(code: @code)
   end
 
+  def set_already_called_for(status)
+    already_called_for[status] = true
+  end
 
   def status_value
     @status_value ||= Coman::Response::StatusValue.new(status: @status)

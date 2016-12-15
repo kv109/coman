@@ -276,6 +276,17 @@ RSpec.describe Coman::Response do
       end
     end
 
+    context 'chains' do
+      it 'yields only once' do
+        expect do |block|
+          described_class.new(code: 401, status: :error)
+            .error(401, &block)
+            .error(422, &block)
+            .error(&block)
+        end.to yield_control.once
+      end
+    end
+
     context 'with no block' do
       let(:instance) { described_class.new(status: :ok) }
 
