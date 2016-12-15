@@ -74,12 +74,12 @@ class Coman::Response
   end
 
   class << self
-    def ok(opts = nil)
-      opts ||= {}
-      filtered_opts = {}
-      filtered_opts[:messages] = opts[:messages] if opts.has_key?(:messages)
-      filtered_opts[:result]    = opts[:result] if opts.has_key?(:result)
-      new(filtered_opts.merge(status: :ok))
+    def error(opts = {})
+      new(opts.merge(status: :error))
+    end
+
+    def ok(opts = {})
+      new(opts.merge(status: :ok))
     end
   end
 end

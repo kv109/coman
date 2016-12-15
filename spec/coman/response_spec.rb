@@ -291,6 +291,9 @@ RSpec.describe Coman::Response do
       expect(described_class).to receive(:new).with({ status: :ok })
       described_class.ok
 
+      expect(described_class).to receive(:new).with({ messages: ['foobar'], status: :ok })
+      described_class.ok(messages: ['foobar'])
+
       expect(described_class).to receive(:new).with({ messages: [], status: :ok })
       described_class.ok(messages: [])
 
@@ -300,8 +303,36 @@ RSpec.describe Coman::Response do
       expect(described_class).to receive(:new).with({ status: :ok, result: nil })
       described_class.ok(result: nil)
 
-      expect(described_class).to receive(:new).with({ messages: [], status: :ok, result: 'result' })
-      described_class.ok(messages: [], result: 'result')
+      expect(described_class).to receive(:new).with({ code: 400, status: :ok })
+      described_class.ok(code: 400)
+
+      expect(described_class).to receive(:new).with({ code: 401, messages: [], status: :ok, result: 'result' })
+      described_class.ok(code: 401, messages: [], result: 'result')
+    end
+  end
+
+  describe '.error' do
+    it 'builds new Response with status=:ok' do
+      expect(described_class).to receive(:new).with({ status: :error })
+      described_class.error
+
+      expect(described_class).to receive(:new).with({ messages: ['foobar'], status: :error })
+      described_class.error(messages: ['foobar'])
+
+      expect(described_class).to receive(:new).with({ messages: [], status: :error })
+      described_class.error(messages: [])
+
+      expect(described_class).to receive(:new).with({ status: :error, result: 'result' })
+      described_class.error(result: 'result')
+
+      expect(described_class).to receive(:new).with({ status: :error, result: nil })
+      described_class.error(result: nil)
+
+      expect(described_class).to receive(:new).with({ code: 400, status: :error })
+      described_class.error(code: 400)
+
+      expect(described_class).to receive(:new).with({ code: 401, messages: [], status: :error, result: 'result' })
+      described_class.error(code: 401, messages: [], result: 'result')
     end
   end
 end
