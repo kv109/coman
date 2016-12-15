@@ -1,6 +1,6 @@
 require_relative '../lib/coman'
 
-class CreateUserCommand < Struct.new(:user)
+class CreateUserService < Struct.new(:user)
   def execute
     if user.save
       Coman::Response.ok(result: user)
@@ -17,7 +17,7 @@ end
 
 class UsersController
   def create
-    command = CreateUserCommand.new(User.new)
+    command = CreateUserService.new(User.new)
 
     command.execute
       .ok do |user|
