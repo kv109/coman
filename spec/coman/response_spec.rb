@@ -208,6 +208,16 @@ RSpec.describe Coman::Response do
       end
     end
 
+    context 'chains' do
+      it 'yields only once' do
+        expect do |block|
+          described_class.new(code: 201, status: :ok)
+            .ok(201, &block)
+            .ok(202, &block)
+            .ok(&block)
+        end.to yield_control.once
+      end
+    end
 
     context 'with no block' do
       let(:instance) { described_class.new(status: :ok) }
@@ -294,6 +304,34 @@ RSpec.describe Coman::Response do
         expect{ instance.ok }.to_not raise_error
         expect( instance.ok ).to eql instance
       end
+    end
+  end
+
+  describe '#error?' do
+    context 'with :status => :ok' do
+      subject { described_class.new(status: :ok).error? }
+
+      it { expect(subject).to be_falsy }
+    end
+
+    context 'with :status => :error' do
+      subject { described_class.new(status: :error).error? }
+
+      it { expect(subject).to be_truthy }
+    end
+  end
+
+  describe '#ok?' do
+    context 'with :status => :ok' do
+      subject { described_class.new(status: :ok).ok? }
+
+      it { expect(subject).to be_truthy }
+    end
+
+    context 'with :status => :error' do
+      subject { described_class.new(status: :error).ok? }
+
+      it { expect(subject).to be_falsy }
     end
   end
 
