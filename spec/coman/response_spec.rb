@@ -361,7 +361,7 @@ RSpec.describe Coman::Response do
   end
 
   describe '.error' do
-    it 'builds new Response with status=:ok' do
+    it 'builds new Response with status=:error' do
       expect(described_class).to receive(:new).with({ status: :error })
       described_class.error
 
