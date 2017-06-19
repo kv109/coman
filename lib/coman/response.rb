@@ -58,7 +58,7 @@ class Coman::Response
   def to_s
     [].tap do |string|
       string << "status=#{status}"
-      string << "messages=#{messages.join(', ')}" if messages.present?
+      string << "messages=#{messages.join(', ')}" if messages.any?
       string << "result=#{result}" if result
     end.join(', ').insert(0, 'RESULT: ')
   end
