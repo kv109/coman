@@ -51,6 +51,10 @@ class Coman::Response
     status_value.get
   end
 
+  def eql?(other)
+    status == other.status && result == other.result
+  end
+
   def to_s
     [].tap do |string|
       string << "status=#{status}"
