@@ -1,6 +1,7 @@
 module Coman
   module Command
     require_relative 'command/command_errors'
+    require_relative 'response'
 
     CALL_METHOD_NAME = :call.freeze; private_constant :CALL_METHOD_NAME
     RESPONSE_METHOD_NAME = :response.freeze; private_constant :RESPONSE_METHOD_NAME
@@ -17,7 +18,9 @@ module Coman
         raise NotImplementedError, "#{Coman::Command} expects #{base} to implement ##{CALL_METHOD_NAME}"
       end
 
-      define_method RESPONSE_METHOD_NAME do
+      define_method RESPONSE_METHOD_NAME do |*args|
+        result = send(CALL_METHOD_NAME, *args)
+        Coman::Response.ok(result: result)
       end
     end
 

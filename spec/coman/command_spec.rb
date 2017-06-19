@@ -11,7 +11,7 @@ RSpec.describe Coman::Command do
       end
     end
 
-    it { expect(subject.public_methods).to include(:response) }
+    it { expect(subject).to respond_to(:response) }
 
     context 'when already implements #response' do
       let(:class_to_extend) do
@@ -44,14 +44,34 @@ RSpec.describe Coman::Command do
       end
 
       context 'implements #call' do
-        let(:class_to_extend) do
-          Class.new do
-            def call
-            end
+        let(:class_to_extend) { class_with_instance_method(:call) }
+        it { expect { subject }.to_not raise_error }
+
+        context 'and #call returns' do
+          let(:class_to_extend) { class_with_instance_method(:call, return_value) }
+          context 'nil' do
+            let(:return_value) { nil }
+            it { expect(subject).to eql(Coman::Response.ok) }
+          end
+
+          context 'string' do
+            let(:return_value) { 'string' }
+            it { expect(subject).to eql(Coman::Response.ok(result: 'string')) }
+          end
+
+          context 'integer' do
+            let(:return_value) { 109 }
+            it { expect(subject).to eql(Coman::Response.ok(result: 109)) }
           end
         end
+      end
+    end
+  end
 
-        it { expect { subject }.to_not raise_error }
+  def class_with_instance_method(method_name, return_value = nil)
+    Class.new do
+      define_method method_name do
+        return_value
       end
     end
   end
