@@ -1,4 +1,4 @@
-require_relative '../../lib/coman/response'
+require './spec/spec_helper'
 
 RSpec.describe Coman::Response do
   describe '#initialize' do
@@ -88,9 +88,9 @@ RSpec.describe Coman::Response do
       context 'with valid :status and no other args' do
         let(:args) { { status: status } }
         let(:status) { :ok }
-        subject { described_class.new(args).status }
+        subject { described_class.new(**args).status }
 
-        it { expect{ described_class.new(args) }.to_not raise_error }
+        it { expect{ described_class.new(**args) }.to_not raise_error }
 
         context 'with :status => :ok' do
           let(:status) { :ok }
@@ -115,7 +115,7 @@ RSpec.describe Coman::Response do
     end
 
     context ':messages arg' do
-      subject { described_class.new(args).messages }
+      subject { described_class.new(**args).messages }
 
       context 'with no :messages' do
         let(:args) { { status: :ok } }
@@ -135,7 +135,7 @@ RSpec.describe Coman::Response do
 
           it do
             error_message = 'Invalid message (message=not_string:Symbol), has to be non-empty String'
-            expect{ described_class.new(args) }.to raise_error(error_class, error_message)
+            expect{ described_class.new(**args) }.to raise_error(error_class, error_message)
           end
         end
 
@@ -144,7 +144,7 @@ RSpec.describe Coman::Response do
 
           it do
             error_message = 'Invalid message (message=[empty string]), has to be non-empty String'
-            expect{ described_class.new(args) }.to raise_error(error_class, error_message)
+            expect{ described_class.new(**args) }.to raise_error(error_class, error_message)
           end
         end
       end
@@ -162,7 +162,7 @@ RSpec.describe Coman::Response do
             { messages: ['foobar'], status: :ok, result: 'result' } => ['result', ['foobar']],
           }
           args_to_returned_values.each do |args, returned_values|
-            expect{ |block| described_class.new(args).ok(&block)}.to yield_with_args(*returned_values)
+            expect{ |block| described_class.new(**args).ok(&block)}.to yield_with_args(*returned_values)
           end
         end
 
@@ -174,7 +174,7 @@ RSpec.describe Coman::Response do
             { code: :created, status: :ok } => [nil, []],
           }
           args_to_returned_values.each do |args, returned_values|
-            expect{ |block| described_class.new(args).ok(&block)}.to yield_with_args(*returned_values)
+            expect{ |block| described_class.new(**args).ok(&block)}.to yield_with_args(*returned_values)
           end
         end
 
@@ -240,7 +240,7 @@ RSpec.describe Coman::Response do
             { messages: ['foobar'], status: :error, result: 'result' } => ['result', ['foobar']],
           }
           args_to_returned_values.each do |args, returned_values|
-            expect{ |block| described_class.new(args).error(&block)}.to yield_with_args(*returned_values)
+            expect{ |block| described_class.new(**args).error(&block)}.to yield_with_args(*returned_values)
           end
         end
 
@@ -252,7 +252,7 @@ RSpec.describe Coman::Response do
             { code: :unauthorized, status: :error } => [nil, []],
           }
           args_to_returned_values.each do |args, returned_values|
-            expect{ |block| described_class.new(args).error(&block)}.to yield_with_args(*returned_values)
+            expect{ |block| described_class.new(**args).error(&block)}.to yield_with_args(*returned_values)
           end
         end
 
@@ -337,51 +337,67 @@ RSpec.describe Coman::Response do
 
   describe '.ok' do
     it 'builds new Response with status=:ok' do
-      expect(described_class).to receive(:new).with({ status: :ok })
-      described_class.ok
+      result = described_class.ok
+      expect(result.ok?).to eq(true)
 
-      expect(described_class).to receive(:new).with({ messages: ['foobar'], status: :ok })
-      described_class.ok(messages: ['foobar'])
+      result = described_class.ok(messages: ['foobar'])
+      expect(result.ok?).to eq(true)
+      expect(result.messages).to contain_exactly('foobar')
 
-      expect(described_class).to receive(:new).with({ messages: [], status: :ok })
-      described_class.ok(messages: [])
+      result = described_class.ok(messages: [])
+      expect(result.ok?).to eq(true)
+      expect(result.messages).to be_empty
 
-      expect(described_class).to receive(:new).with({ status: :ok, result: 'result' })
-      described_class.ok(result: 'result')
+      result = described_class.ok(result: 'result')
+      expect(result.ok?).to eq(true)
+      expect(result.result).to eq('result')
 
-      expect(described_class).to receive(:new).with({ status: :ok, result: nil })
-      described_class.ok(result: nil)
+      result = described_class.ok(result: nil)
+      expect(result.ok?).to eq(true)
+      expect(result.result).to be_nil
 
-      expect(described_class).to receive(:new).with({ code: 400, status: :ok })
-      described_class.ok(code: 400)
+      result = described_class.ok(code: 200)
+      expect(result.ok?).to eq(true)
+      expect(result.code).to eq(200)
 
-      expect(described_class).to receive(:new).with({ code: 401, messages: [], status: :ok, result: 'result' })
-      described_class.ok(code: 401, messages: [], result: 'result')
+      result = described_class.ok(code: 201, messages: [], result: 'result')
+      expect(result.ok?).to eq(true)
+      expect(result.code).to eq(201)
+      expect(result.messages).to be_empty
+      expect(result.result).to eq('result')
     end
   end
 
   describe '.error' do
-    it 'builds new Response with status=:ok' do
-      expect(described_class).to receive(:new).with({ status: :error })
-      described_class.error
+    it 'builds new Response with status=:error' do
+      response = described_class.error
+      expect(response.error?).to eq(true)
 
-      expect(described_class).to receive(:new).with({ messages: ['foobar'], status: :error })
-      described_class.error(messages: ['foobar'])
+      response = described_class.error(messages: ['foobar'])
+      expect(response.error?).to eq(true)
+      expect(response.messages).to contain_exactly('foobar')
 
-      expect(described_class).to receive(:new).with({ messages: [], status: :error })
-      described_class.error(messages: [])
+      response = described_class.error(messages: [])
+      expect(response.error?).to eq(true)
+      expect(response.messages).to be_empty
 
-      expect(described_class).to receive(:new).with({ status: :error, result: 'result' })
-      described_class.error(result: 'result')
+      response = described_class.error(result: 'result')
+      expect(response.error?).to eq(true)
+      expect(response.result).to eq('result')
 
-      expect(described_class).to receive(:new).with({ status: :error, result: nil })
-      described_class.error(result: nil)
+      response = described_class.error(result: nil)
+      expect(response.error?).to eq(true)
+      expect(response.result).to be_nil
 
-      expect(described_class).to receive(:new).with({ code: 400, status: :error })
-      described_class.error(code: 400)
+      response = described_class.error(code: 400)
+      expect(response.error?).to eq(true)
+      expect(response.code).to eq(400)
 
-      expect(described_class).to receive(:new).with({ code: 401, messages: [], status: :error, result: 'result' })
-      described_class.error(code: 401, messages: [], result: 'result')
+      response = described_class.error(code: 401, messages: [], result: 'result')
+      expect(response.error?).to eq(true)
+      expect(response.code).to eq(401)
+      expect(response.messages).to be_empty
+      expect(response.result).to eq('result')
     end
   end
 end
